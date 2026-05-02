@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Society — Sign in</title>
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">S</span>
+    <span>SocietyApp</span>
+  </div>
+  <span class="who">Demo</span>
+</header>
+
+<main class="app">
+  <div class="card">
+    <h2>Sign in as a resident</h2>
+    <p class="muted" style="margin-top:0">Tap any flat below to sign in. This is a prototype — no passwords.</p>
+    <div id="residents" class="role-grid"></div>
+  </div>
+
+  <div class="card">
+    <h2>Sign in as security</h2>
+    <div id="guards" class="role-grid"></div>
+  </div>
+
+  <p class="muted" style="text-align:center">Tip: open this on your phone too — sign in as a resident on one device and as the guard on another to see the real-time flow.</p>
+</main>
+
+<script src="/js/common.js"></script>
+<script>
+async function init() {
+  // If already logged in, redirect to the right page
+  try {
+    const { user } = await api.get('/api/me');
+    if (user.role === 'resident') location.href = '/resident';
+    else if (user.role === 'guard') location.href = '/guard';
+    return;
+  } catch {}
+
+  let users;
+  try { users = await api.get('/api/users'); }
+  catch (e) { toast('Failed to load users: ' + e.message, 'error'); return; }
+
+  const residents = users.filter(u => u.role === 'resident');
+  const guards = users.filter(u => u.role === 'guard');
+
+  document.getElementById('residents').innerHTML = residents.map(u => `
+    <button class="role-card" data-id="${u.id}">
+      <div class="name">${u.name}</div>
+      <div class="sub">Tower ${u.tower} · ${u.flat}</div>
+    </button>
+  `).join('');
+
+  document.getElementById('guards').innerHTML = guards.map(u => `
+    <button class="role-card" data-id="${u.id}">
+      <div class="name">${u.name}</div>
+      <div class="sub">Main Gate</div>
+    </button>
+  `).join('');
+
+  document.querySelectorAll('.role-card').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = +btn.dataset.id;
+      try {
+        const { user } = await api.post('/api/login', { userId: id });
+        location.href = user.role === 'guard' ? '/guard' : '/resident';
+      } catch (e) {
+        toast('Login failed: ' + e.message, 'error');
+      }
+    });
+  });
+}
+init();
+</script>
+</body>
+</html>

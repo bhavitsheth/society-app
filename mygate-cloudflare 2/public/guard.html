@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Security · SocietyApp</title>
+<link rel="stylesheet" href="/styles.css" />
+<script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo">S</span><span>Security · Main Gate</span></div>
+  <span class="who" id="who"></span>
+</header>
+
+<main class="app">
+  <div class="tabs">
+    <button data-tab="scan" class="active">Scan QR</button>
+    <button data-tab="walkin">Walk-in</button>
+    <button data-tab="log">Today's log</button>
+  </div>
+
+  <section id="tab-scan" class="tab">
+    <div class="card">
+      <h2>Scan visitor QR</h2>
+      <p class="muted" style="margin-top:0">Point the camera at the QR code shown by the visitor.</p>
+      <div id="scanner"></div>
+      <div class="row" style="gap:8px; margin-top:12px">
+        <button id="scan-toggle" class="full">Start camera</button>
+      </div>
+
+      <h3 style="margin-top:18px">Or enter code manually</h3>
+      <div class="row" style="gap:8px">
+        <input id="manual-code" placeholder="QR token…" />
+        <button id="manual-submit" class="secondary">Verify</button>
+      </div>
+    </div>
+
+    <div id="scan-result"></div>
+  </section>
+
+  <section id="tab-walkin" class="tab" style="display:none">
+    <div class="card">
+      <h2>Log walk-in visitor</h2>
+      <p class="muted" style="margin-top:0">For unknown visitors. The resident will get an approval request within a few seconds.</p>
+
+      <form id="walkin-form">
+        <label>Resident (flat) *</label>
+        <select name="resident_id" required>
+          <option value="">Select…</option>
+        </select>
+
+        <label>Visitor name *</label>
+        <input name="visitor_name" required placeholder="e.g. Suresh" />
+
+        <label>Visitor phone</label>
+        <input name="visitor_phone" type="tel" placeholder="+91 …" />
+
+        <label>Visit type *</label>
+        <select name="visit_type" required>
+          <option value="Guest">Guest</option>
+          <option value="Delivery">Delivery</option>
+          <option value="Cab">Cab</option>
+          <option value="Service">Service</option>
+        </select>
+
+        <label>Vehicle number</label>
+        <input name="vehicle_number" placeholder="e.g. MH 01 AB 1234" style="text-transform:uppercase" />
+
+        <label>Visitor photo</label>
+        <div id="photo-area">
+          <video id="cam" autoplay playsinline muted style="display:none"></video>
+          <img id="photo-preview" class="photo-preview" style="display:none" />
+          <canvas id="photo-canvas" style="display:none"></canvas>
+          <div class="row" style="gap:8px; margin-top:8px">
+            <button type="button" id="cam-start" class="secondary full">Open camera</button>
+            <button type="button" id="cam-snap" class="full" style="display:none">Capture</button>
+            <button type="button" id="cam-retake" class="secondary full" style="display:none">Retake</button>
+          </div>
+        </div>
+
+        <label>Notes</label>
+        <textarea name="notes" placeholder="(optional)"></textarea>
+
+        <div style="height:12px"></div>
+        <button type="submit" class="full">Send to resident for approval</button>
+      </form>
+    </div>
+
+    <div id="walkin-status"></div>
+  </section>
+
+  <section id="tab-log" class="tab" style="display:none">
+    <div class="card">
+      <h2>Today's visitor log</h2>
+      <div id="log-list"></div>
+    </div>
+  </section>
+
+  <p style="text-align:center; margin-top:24px">
+    <button class="ghost" onclick="logout()">Sign out</button>
+  </p>
+</main>
+
+<script src="/js/common.js"></script>
+<script src="/js/guard.js"></script>
+</body>
+</html>
